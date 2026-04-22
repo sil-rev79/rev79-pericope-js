@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Versification } from '../src/versification.js';
+import { Versification, ENGLISH } from '../src/versification.js';
+import { OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from '../src/book-data.ts';
 
 describe('Versification', () => {
     describe('verseCount', () => {
@@ -72,9 +73,31 @@ describe('Versification', () => {
         });
 
         it('has expected chapter counts', () => {
-            expect(Versification.bookChapters('GEN').length).toBe(50);
-            expect(Versification.bookChapters('PSA').length).toBe(150);
-            expect(Versification.bookChapters('MAT').length).toBe(28);
+            const otBookDataChapterCounts = OLD_TESTAMENT_BOOKS.reduce(
+                (acc, book) => {
+                    acc[book.code] = book.chapterCount;
+                    return acc;
+                },
+                {} as Record<string, number>,
+            );
+            const ntBookDataChapterCounts = NEW_TESTAMENT_BOOKS.reduce(
+                (acc, book) => {
+                    acc[book.code] = book.chapterCount;
+                    return acc;
+                },
+                {} as Record<string, number>,
+            );
+            const bookDataChapterCounts = {
+                ...otBookDataChapterCounts,
+                ...ntBookDataChapterCounts,
+            };
+            const versificationChapterCounts = Object.fromEntries(
+                Object.entries(ENGLISH).map(([code, chapters]) => [
+                    code,
+                    chapters.length,
+                ]),
+            );
+            expect(versificationChapterCounts).toEqual(bookDataChapterCounts);
         });
     });
 });

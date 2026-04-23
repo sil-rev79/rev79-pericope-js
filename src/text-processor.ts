@@ -19,7 +19,7 @@ export class TextProcessor {
         system: VersificationSystem = 'english',
     ): Pericope[] {
         const pericopes: Pericope[] = [];
-        const pattern = /\b([A-Z]{3}|[1-3][A-Z]{2})\s+([0-9:,-]+)/gi;
+        const pattern = /\b([A-Z]{3}|[1-3][A-Z]{2})\s+([0-9:\.,;\-–]+)/gi;
         let match;
         while ((match = pattern.exec(text)) !== null) {
             try {
@@ -108,7 +108,12 @@ export class TextProcessor {
      */
     private static parseRanges(rangeText: string, book: Book): Range[] {
         const ranges: Range[] = [];
-        const parts = rangeText.split(',').map((p) => p.trim());
+        const parts = rangeText
+            .replaceAll(';', ',')
+            .replaceAll('.', ':')
+            .replaceAll('–', '-')
+            .split(',')
+            .map((p) => p.trim());
         let currentChapter: number | null = null;
 
         for (const part of parts) {

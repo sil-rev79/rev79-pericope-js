@@ -27,9 +27,9 @@ describe('Pericope', () => {
             expect(pericope.toString()).toBe('GEN 1:1-2:3');
         });
 
-        it('parses multiple ranges', () => {
-            const pericope = new Pericope('GEN 1:1,3,5');
-            expect(pericope.rangeCount()).toBe(3);
+        it('parses multiple ranges with multiple delimiters', () => {
+            const pericope = new Pericope('GEN 1:1,3;5.9,10-12;15–17');
+            expect(pericope.rangeCount()).toBe(5);
         });
 
         it('raises ParseError for empty reference', () => {

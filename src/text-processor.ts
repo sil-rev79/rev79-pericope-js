@@ -122,7 +122,13 @@ export class TextProcessor {
         let context: number | 'chapter_mode' | null = null;
 
         for (const part of parts) {
-            context = this.parseSingleRange(part, context, book, ranges, system);
+            context = this.parseSingleRange(
+                part,
+                context,
+                book,
+                ranges,
+                system,
+            );
         }
         return ranges;
     }

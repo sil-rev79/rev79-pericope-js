@@ -78,12 +78,10 @@ export class Book {
      * Performs a fuzzy string search to find a book by name.
      * Uses Levenshtein distance to find the best match within maxDistance.
      */
-    private static findByFuzzyMatch(
-        name: string,
-        maxDistance: number = 2,
-    ): Book | null {
+    private static findByFuzzyMatch(name: string): Book | null {
         if (name.length < 3) return null;
 
+        const maxDistance = Math.ceil(name.length / 4.0);
         let bestMatch: BookInfo | null = null;
         let bestDistance = maxDistance + 1;
 

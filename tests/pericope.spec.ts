@@ -120,6 +120,36 @@ describe('Pericope', () => {
         });
     });
 
+    describe('toString', () => {
+        let pericope: Pericope;
+
+        it('returns canonical format by default', () => {
+            pericope = new Pericope('GEN 1:1-3');
+            expect(pericope.toString()).toBe('GEN 1:1–3');
+        });
+
+        it('returns full name format when specified', () => {
+            pericope = new Pericope('GEN 1:1-3');
+            expect(pericope.toString('full_name')).toBe('Genesis 1:1–3');
+        });
+
+        it('returns abbreviated format when specified', () => {
+            pericope = new Pericope('GEN 1:1-3');
+            expect(pericope.toString('abbreviated')).toBe('GEN 1:1–3');
+        });
+
+        it('wont output verses when all ranges are full chapters and not canonical format', () => {
+            pericope = new Pericope('GEN 1-3, 5:1-32'); // chapter 5 has 32 verses
+            expect(pericope.toString('abbreviated')).toBe('GEN 1–3,5');
+        });
+
+        it('returns empty string for empty pericope', () => {
+            pericope = new Pericope('GEN 1:1');
+            (pericope as any).ranges = [];
+            expect(pericope.toString()).toBe('');
+        });
+    });
+
     describe('toArray', () => {
         it('returns array of VerseRef objects for single verse', () => {
             const pericope = new Pericope('GEN 1:1');

@@ -85,23 +85,6 @@ export class TextProcessor {
     }
 
     /**
-     * Converts an array of Range objects into a formatted string (e.g., "1:1-3,5").
-     */
-    private static formatRanges(ranges: Range[]): string {
-        return ranges
-            .map((r) => {
-                if (r.isSingleVerse()) {
-                    return `${r.startChapter}:${r.startVerse}`;
-                } else if (r.isSingleChapter()) {
-                    return `${r.startChapter}:${r.startVerse}–${r.endVerse}`;
-                } else {
-                    return `${r.startChapter}:${r.startVerse}–${r.endChapter}:${r.endVerse}`;
-                }
-            })
-            .join(',');
-    }
-
-    /**
      * Parses the verse range part of a reference string.
      * Handles multiple comma-separated ranges.
      */
@@ -321,7 +304,7 @@ export class TextProcessor {
             (range.startChapter == range.endChapter &&
                 range.startVerse > range.endVerse)
         )
-            throw new InvalidRangeError(this.formatRanges([range]));
+            throw new InvalidRangeError(range);
     }
 
     /**

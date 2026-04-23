@@ -58,6 +58,32 @@ export class Range {
         );
     }
 
+    fullChaptersInBook(
+        book: Book,
+        system: VersificationSystem = 'english',
+    ): boolean {
+        return (
+            this.startVerse === 1 &&
+            this.endVerse === book.verseCount(this.endChapter, system)
+        );
+    }
+
+    toString(excludeVerses: boolean = false): string {
+        if (this.isSingleVerse()) {
+            return `${this.startChapter}:${this.startVerse}`;
+        } else if (this.isSingleChapter()) {
+            if (excludeVerses) {
+                return `${this.startChapter}`;
+            } else {
+                return `${this.startChapter}:${this.startVerse}–${this.endVerse}`;
+            }
+        } else if (excludeVerses) {
+            return `${this.startChapter}–${this.endChapter}`;
+        } else {
+            return `${this.startChapter}:${this.startVerse}–${this.endChapter}:${this.endVerse}`;
+        }
+    }
+
     equals(other: any): boolean {
         if (!(other instanceof Range)) return false;
 

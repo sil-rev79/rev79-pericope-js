@@ -34,7 +34,22 @@ export class Pericope {
     toString(
         format: 'canonical' | 'full_name' | 'abbreviated' = 'canonical',
     ): string {
-        return TextProcessor.formatPericope(this, format);
+        if (this.ranges.length === 0) return '';
+
+        const bookS = format === 'full_name' ? this.book.name : this.book.code;
+
+        // if we are only dealing in full chapters, don't show verses except for canonical
+        const excludeVerses =
+            format !== 'canonical' &&
+            this.ranges.every((r) =>
+                r.fullChaptersInBook(this.book, this.system),
+            );
+
+        const rangesS = this.ranges
+            .map((r) => r.toString(excludeVerses))
+            .join(',');
+
+        return `${bookS} ${rangesS}`.trim();
     }
 
     /**

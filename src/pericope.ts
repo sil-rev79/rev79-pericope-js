@@ -1,16 +1,10 @@
 import { Book } from './book.js';
 import { VerseRef } from './verse-ref.js';
+import { Range } from './range.js';
 import { VersificationSystem } from './versification.js';
 import { TextProcessor } from './text-processor.js';
 import { MathOperations } from './math-operations.js';
 import { SetOperations } from './set-operations.js';
-
-export interface Range {
-    startChapter: number;
-    startVerse: number;
-    endChapter: number;
-    endVerse: number;
-}
 
 export class Pericope {
     readonly book: Book;
@@ -49,14 +43,29 @@ export class Pericope {
     toArray(): VerseRef[] {
         const verses: VerseRef[] = [];
         for (const range of this.ranges) {
-            for (let ch = range.startChapter; ch <= range.endChapter; ch++) {
-                const startV = ch === range.startChapter ? range.startVerse : 1;
-                const endV =
-                    ch === range.endChapter
-                        ? range.endVerse
-                        : this.book.verseCount(ch, this.system);
-                for (let v = startV; v <= endV; v++) {
-                    verses.push(new VerseRef(this.book, ch, v));
+            if (range.isSingleVerse()) {
+                verses.push(
+                    new VerseRef(
+                        this.book,
+                        range.startChapter,
+                        range.startVerse,
+                    ),
+                );
+            } else {
+                for (
+                    let ch = range.startChapter;
+                    ch <= range.endChapter;
+                    ch++
+                ) {
+                    const startV =
+                        ch === range.startChapter ? range.startVerse : 1;
+                    const endV =
+                        ch === range.endChapter
+                            ? range.endVerse
+                            : this.book.verseCount(ch, this.system);
+                    for (let v = startV; v <= endV; v++) {
+                        verses.push(new VerseRef(this.book, ch, v));
+                    }
                 }
             }
         }
@@ -64,7 +73,11 @@ export class Pericope {
     }
 
     isValid(): boolean {
-        return this.book.isValid() && this.ranges.length > 0;
+        return (
+            this.book.isValid() &&
+            this.ranges.length > 0 &&
+            this.ranges.every((r) => r.isValidInBook(this.book, this.system))
+        );
     }
 
     isEmpty(): boolean {
@@ -72,19 +85,15 @@ export class Pericope {
     }
 
     isSingleVerse(): boolean {
-        return (
-            this.ranges.length === 1 &&
-            this.ranges[0].startChapter === this.ranges[0].endChapter &&
-            this.ranges[0].startVerse === this.ranges[0].endVerse
-        );
+        return this.ranges.length === 1 && this.ranges[0].isSingleVerse();
     }
 
     isSingleChapter(): boolean {
-        return this.ranges.every((r) => r.startChapter === r.endChapter);
+        return this.ranges.every((r) => r.isSingleChapter());
     }
 
     spansChapters(): boolean {
-        return this.ranges.some((r) => r.startChapter !== r.endChapter);
+        return this.ranges.some((r) => r.spansChapters());
     }
 
     verseCount(): number {

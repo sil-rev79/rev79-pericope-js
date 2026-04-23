@@ -1,5 +1,6 @@
 import { Book } from './book.js';
-import { Pericope, Range } from './pericope.js';
+import { Pericope } from './pericope.js';
+import { Range } from './range.js';
 import {
     ParseError,
     InvalidBookError,
@@ -89,12 +90,9 @@ export class TextProcessor {
     private static formatRanges(ranges: Range[]): string {
         return ranges
             .map((r) => {
-                if (
-                    r.startChapter === r.endChapter &&
-                    r.startVerse === r.endVerse
-                ) {
+                if (r.isSingleVerse()) {
                     return `${r.startChapter}:${r.startVerse}`;
-                } else if (r.startChapter === r.endChapter) {
+                } else if (r.isSingleChapter()) {
                     return `${r.startChapter}:${r.startVerse}–${r.endVerse}`;
                 } else {
                     return `${r.startChapter}:${r.startVerse}–${r.endChapter}:${r.endVerse}`;
@@ -158,12 +156,9 @@ export class TextProcessor {
                 endChapter = startChapter;
                 endVerse = parseInt(endPart, 10);
             }
-            ranges.push({
-                startChapter,
-                startVerse,
-                endChapter,
-                endVerse,
-            });
+            ranges.push(
+                new Range(startChapter, startVerse, endChapter, endVerse),
+            );
             newContext = endChapter;
         } else if (endPart.includes(':')) {
             let startChapter: number, startVerse: number;
@@ -177,12 +172,9 @@ export class TextProcessor {
             const [endChapter, endVerse] = endPart
                 .split(':')
                 .map((s) => parseInt(s, 10));
-            ranges.push({
-                startChapter,
-                startVerse,
-                endChapter,
-                endVerse,
-            });
+            ranges.push(
+                new Range(startChapter, startVerse, endChapter, endVerse),
+            );
             newContext = endChapter;
         } else if (book.chapterCount === 1) {
             ranges.push(
@@ -274,12 +266,7 @@ export class TextProcessor {
         startVerse: number,
         endVerse: number,
     ): Range {
-        return {
-            startChapter: chapter,
-            startVerse,
-            endChapter: chapter,
-            endVerse,
-        };
+        return new Range(chapter, startVerse, chapter, endVerse);
     }
 
     private static chaptersToRange(
@@ -288,24 +275,24 @@ export class TextProcessor {
         endChapter: number,
         system: VersificationSystem,
     ): Range {
-        return {
+        return new Range(
             startChapter,
-            startVerse: 1,
+            1,
             endChapter,
-            endVerse: book.verseCount(endChapter, system),
-        };
+            book.verseCount(endChapter, system),
+        );
     }
 
     private static wholeBookRange(
         book: Book,
         system: VersificationSystem,
     ): Range {
-        return {
-            startChapter: 1,
-            startVerse: 1,
-            endChapter: book.chapterCount,
-            endVerse: book.verseCount(book.chapterCount, system),
-        };
+        return new Range(
+            1,
+            1,
+            book.chapterCount,
+            book.verseCount(book.chapterCount, system),
+        );
     }
 
     private static validateRange(

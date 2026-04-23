@@ -1,5 +1,6 @@
 import { VerseRef } from './verse-ref.js';
-import { Pericope, Range } from './pericope.js';
+import { Pericope } from './pericope.js';
+import { Range } from './range.js';
 
 export class MathOperations {
     /**

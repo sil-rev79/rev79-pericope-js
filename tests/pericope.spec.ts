@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Pericope } from '../src/pericope.js';
 import { VerseRef } from '../src/verse-ref.js';
+import { Range } from '../src/range.js';
 import {
     ParseError,
     InvalidBookError,
@@ -98,23 +99,13 @@ describe('Pericope', () => {
 
             expect(pericope.ranges).toEqual([
                 // 1 -> whole of chapter 1
-                { startChapter: 1, startVerse: 1, endChapter: 1, endVerse: 31 },
+                new Range(1, 1, 1, 31),
                 // 5-7 -> all of chapters 5 through 7
-                { startChapter: 5, startVerse: 1, endChapter: 7, endVerse: 24 },
+                new Range(5, 1, 7, 24),
                 // 11:1-3 -> verses 1-3 of chapter 11
-                {
-                    startChapter: 11,
-                    startVerse: 1,
-                    endChapter: 11,
-                    endVerse: 3,
-                },
+                new Range(11, 1, 11, 3),
                 // 5-7 -> verses 5-7 of chapter 11
-                {
-                    startChapter: 11,
-                    startVerse: 5,
-                    endChapter: 11,
-                    endVerse: 7,
-                },
+                new Range(11, 5, 11, 7),
             ]);
         });
     });

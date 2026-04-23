@@ -1,5 +1,6 @@
 import { VerseRef } from './verse-ref.js';
-import { Pericope, Range } from './pericope.js';
+import { Pericope } from './pericope.js';
+import { Range } from './range.js';
 import { Book } from './book.js';
 
 export class SetOperations {
@@ -205,26 +206,17 @@ export class SetOperations {
             if (nextOfEnd && nextOfEnd.toInt() === verses[i].toInt()) {
                 currentEnd = verses[i];
             } else {
-                ranges.push(this.buildRange(currentStart, currentEnd));
+                ranges.push(Range.fromVerseRefs(currentStart, currentEnd));
                 currentStart = verses[i];
                 currentEnd = verses[i];
             }
         }
-        ranges.push(this.buildRange(currentStart, currentEnd));
+        ranges.push(Range.fromVerseRefs(currentStart, currentEnd));
 
         const p = new Pericope(`${book.code} 1:1`);
         (p as any).ranges = ranges;
         (p as any).book = book;
         return p;
-    }
-
-    private static buildRange(start: VerseRef, end: VerseRef): Range {
-        return {
-            startChapter: start.chapter,
-            startVerse: start.verse,
-            endChapter: end.chapter,
-            endVerse: end.verse,
-        };
     }
 
     private static intToVerseRef(val: number, book: Book): VerseRef {

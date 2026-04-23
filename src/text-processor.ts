@@ -69,6 +69,11 @@ export class TextProcessor {
             if (book) {
                 rangePart = parts.slice(2).join(' ');
             }
+        } else if (parts.length >= 3 && parts[0].toLowerCase() == 'song') {
+            book = Book.findByName(`${parts[0]} ${parts[1]} ${parts[2]}`);
+            if (book) {
+                rangePart = parts.slice(3).join(' ');
+            }
         }
 
         if (!book) {

@@ -88,6 +88,16 @@ describe('Pericope', () => {
             expect(pericope.book.code).toBe('GEN');
         });
 
+        it('handles Song of Solomon', () => {
+            const pericope = new Pericope('Song of Solomon 1:1');
+            expect(pericope.book.code).toBe('SNG');
+        });
+
+        it('handles Song of Songs', () => {
+            const pericope = new Pericope('Song of Songs 1:1');
+            expect(pericope.book.code).toBe('SNG');
+        });
+
         it('defaults to the whole book if no range provided', () => {
             const pericope = new Pericope('GEN');
             expect(pericope.toString()).toBe('GEN 1:1–50:26');

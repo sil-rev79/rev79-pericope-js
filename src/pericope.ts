@@ -45,8 +45,15 @@ export class Pericope {
                 r.fullChaptersInBook(this.book, this.system),
             );
 
+        // for full book or single chapter book, don't show chapters if abbreviated
+        const excludeChapters =
+            format === 'abbreviated' &&
+            (this.book.chapterCount === 1 ||
+                this.ranges[0].fullBook(this.book, this.system));
+
         const rangesS = this.ranges
-            .map((r) => r.toString(excludeVerses))
+            .map((r) => r.toString(excludeChapters, excludeVerses))
+            .filter((s) => s.length > 0)
             .join(',');
 
         return `${bookS} ${rangesS}`.trim();

@@ -68,7 +68,24 @@ export class Range {
         );
     }
 
-    toString(excludeVerses: boolean = false): string {
+    fullBook(book: Book, system: VersificationSystem = 'english'): boolean {
+        return (
+            this.fullChaptersInBook(book, system) &&
+            this.startChapter === 1 &&
+            this.endChapter === book.chapterCount
+        );
+    }
+
+    toString(
+        excludeChapters: boolean = false,
+        excludeVerses: boolean = false,
+    ): string {
+        return excludeChapters
+            ? this.outputWithoutChapters(excludeVerses)
+            : this.outputWithChapters(excludeVerses);
+    }
+
+    private outputWithChapters(excludeVerses: boolean): string {
         if (this.isSingleVerse()) {
             return `${this.startChapter}:${this.startVerse}`;
         } else if (this.isSingleChapter()) {
@@ -81,6 +98,16 @@ export class Range {
             return `${this.startChapter}–${this.endChapter}`;
         } else {
             return `${this.startChapter}:${this.startVerse}–${this.endChapter}:${this.endVerse}`;
+        }
+    }
+
+    private outputWithoutChapters(excludeVerses: boolean): string {
+        if (this.isSingleVerse()) {
+            return `${this.startVerse}`;
+        } else if (excludeVerses) {
+            return '';
+        } else {
+            return `${this.startVerse}–${this.endVerse}`;
         }
     }
 

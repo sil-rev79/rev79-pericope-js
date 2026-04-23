@@ -143,6 +143,16 @@ describe('Pericope', () => {
             expect(pericope.toString('abbreviated')).toBe('GEN 1–3,5');
         });
 
+        it('wont output chapter number for a single-chapter book when abbreviated format', () => {
+            pericope = new Pericope('Jude 1:2-5');
+            expect(pericope.toString('abbreviated')).toBe('JUD 2–5');
+        });
+
+        it('wont output chapter or verse numbers for a whole book when abbreviated format', () => {
+            pericope = new Pericope('Genesis');
+            expect(pericope.toString('abbreviated')).toBe('GEN');
+        });
+
         it('returns empty string for empty pericope', () => {
             pericope = new Pericope('GEN 1:1');
             (pericope as any).ranges = [];

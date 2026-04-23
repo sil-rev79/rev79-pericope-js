@@ -95,9 +95,9 @@ export class TextProcessor {
                 ) {
                     return `${r.startChapter}:${r.startVerse}`;
                 } else if (r.startChapter === r.endChapter) {
-                    return `${r.startChapter}:${r.startVerse}-${r.endVerse}`;
+                    return `${r.startChapter}:${r.startVerse}–${r.endVerse}`;
                 } else {
-                    return `${r.startChapter}:${r.startVerse}-${r.endChapter}:${r.endVerse}`;
+                    return `${r.startChapter}:${r.startVerse}–${r.endChapter}:${r.endVerse}`;
                 }
             })
             .join(',');

@@ -24,7 +24,7 @@ describe('Pericope', () => {
 
         it('parses a verse range', () => {
             const pericope = new Pericope('GEN 1:1-3');
-            expect(pericope.toString()).toBe('GEN 1:1-3');
+            expect(pericope.toString()).toBe('GEN 1:1–3');
         });
 
         it('parses a chapterless range for a single-chapter book', () => {
@@ -40,7 +40,7 @@ describe('Pericope', () => {
 
         it('parses a cross-chapter range', () => {
             const pericope = new Pericope('GEN 1:1-2:3');
-            expect(pericope.toString()).toBe('GEN 1:1-2:3');
+            expect(pericope.toString()).toBe('GEN 1:1–2:3');
         });
 
         it('parses multiple ranges with multiple delimiters', () => {
@@ -89,7 +89,7 @@ describe('Pericope', () => {
 
         it('defaults to the whole book if no range provided', () => {
             const pericope = new Pericope('GEN');
-            expect(pericope.toString()).toBe('GEN 1:1-50:26');
+            expect(pericope.toString()).toBe('GEN 1:1–50:26');
         });
 
         it('parses complex ranges including whole chapters', () => {
@@ -102,9 +102,19 @@ describe('Pericope', () => {
                 // 5-7 -> all of chapters 5 through 7
                 { startChapter: 5, startVerse: 1, endChapter: 7, endVerse: 24 },
                 // 11:1-3 -> verses 1-3 of chapter 11
-                { startChapter: 11, startVerse: 1, endChapter: 11, endVerse: 3 },
+                {
+                    startChapter: 11,
+                    startVerse: 1,
+                    endChapter: 11,
+                    endVerse: 3,
+                },
                 // 5-7 -> verses 5-7 of chapter 11
-                { startChapter: 11, startVerse: 5, endChapter: 11, endVerse: 7 },
+                {
+                    startChapter: 11,
+                    startVerse: 5,
+                    endChapter: 11,
+                    endVerse: 7,
+                },
             ]);
         });
     });
@@ -115,7 +125,7 @@ describe('Pericope', () => {
             const pericopes = Pericope.parse(text);
             expect(pericopes.length).toBe(2);
             expect(pericopes[0].toString()).toBe('GEN 1:1');
-            expect(pericopes[1].toString()).toBe('MAT 5:3-12');
+            expect(pericopes[1].toString()).toBe('MAT 5:3–12');
         });
     });
 
@@ -189,8 +199,8 @@ describe('Pericope', () => {
             const ranges = p.continuousRanges();
             expect(ranges.length).toBe(3);
             expect(ranges.map((r) => r.toString())).toEqual([
-                'GEN 1:1-3',
-                'GEN 1:5-7',
+                'GEN 1:1–3',
+                'GEN 1:5–7',
                 'GEN 1:10',
             ]);
         });
@@ -223,24 +233,24 @@ describe('Pericope', () => {
         it('union combines ranges', () => {
             const p1 = new Pericope('GEN 1:1-10');
             const p2 = new Pericope('GEN 1:5-15');
-            expect(p1.union(p2).toString()).toBe('GEN 1:1-15');
+            expect(p1.union(p2).toString()).toBe('GEN 1:1–15');
         });
 
         it('intersection finds overlap', () => {
             const p1 = new Pericope('GEN 1:1-10');
             const p2 = new Pericope('GEN 1:5-15');
-            expect(p1.intersection(p2).toString()).toBe('GEN 1:5-10');
+            expect(p1.intersection(p2).toString()).toBe('GEN 1:5–10');
         });
 
         it('subtract removes overlapping verses', () => {
             const p1 = new Pericope('GEN 1:1-10');
             const p2 = new Pericope('GEN 1:5-15');
-            expect(p1.subtract(p2).toString()).toBe('GEN 1:1-4');
+            expect(p1.subtract(p2).toString()).toBe('GEN 1:1–4');
         });
 
         it('normalize merges adjacent ranges', () => {
             const p = new Pericope('GEN 1:1-3,4-6');
-            expect(p.normalize().toString()).toBe('GEN 1:1-6');
+            expect(p.normalize().toString()).toBe('GEN 1:1–6');
         });
 
         it('expand adds verses', () => {
@@ -252,7 +262,7 @@ describe('Pericope', () => {
 
         it('contract removes verses', () => {
             const p = new Pericope('GEN 1:1-10');
-            expect(p.contract(2, 3).toString()).toBe('GEN 1:3-7');
+            expect(p.contract(2, 3).toString()).toBe('GEN 1:3–7');
         });
     });
 });

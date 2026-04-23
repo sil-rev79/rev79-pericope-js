@@ -67,9 +67,25 @@ describe('Pericope', () => {
             expect(pericope.book.code).toBe('GEN');
         });
 
-        it('defaults to chapter 1 verse 1 if no range provided', () => {
+        it('defaults to the whole book if no range provided', () => {
             const pericope = new Pericope('GEN');
-            expect(pericope.toString()).toBe('GEN 1:1');
+            expect(pericope.toString()).toBe('GEN 1:1-50:26');
+        });
+
+        it('parses complex ranges including whole chapters', () => {
+            const pericope = new Pericope('Genesis 1, 5-7, 11:1-3, 5-7');
+            expect(pericope.rangeCount()).toBe(4);
+
+            expect(pericope.ranges).toEqual([
+                // 1 -> whole of chapter 1
+                { startChapter: 1, startVerse: 1, endChapter: 1, endVerse: 31 },
+                // 5-7 -> all of chapters 5 through 7
+                { startChapter: 5, startVerse: 1, endChapter: 7, endVerse: 24 },
+                // 11:1-3 -> verses 1-3 of chapter 11
+                { startChapter: 11, startVerse: 1, endChapter: 11, endVerse: 3 },
+                // 5-7 -> verses 5-7 of chapter 11
+                { startChapter: 11, startVerse: 5, endChapter: 11, endVerse: 7 },
+            ]);
         });
     });
 

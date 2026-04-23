@@ -122,115 +122,164 @@ export class TextProcessor {
         let context: number | 'chapter_mode' | null = null;
 
         for (const part of parts) {
-            context = this.parseSingleRange(
-                part,
-                context,
-                book,
-                ranges,
-                system,
-            );
+            context = part.includes('-')
+                ? this.parseSingleRange(part, context, book, ranges, system)
+                : this.parseSingleReference(
+                      part,
+                      context,
+                      book,
+                      ranges,
+                      system,
+                  );
         }
         return ranges;
     }
 
-    /**
-     * Parses a single range segment (e.g., "1:1-5" or "5-7").
-     * Returns the chapter number or mode to provide context for subsequent ranges.
-     */
     private static parseSingleRange(
-        part: string,
+        rangeText: string,
         context: number | 'chapter_mode' | null,
         book: Book,
         ranges: Range[],
         system: VersificationSystem,
     ): number | 'chapter_mode' | null {
-        let startChapter: number,
-            startVerse: number,
-            endChapter: number,
-            endVerse: number;
+        const [startPart, endPart] = rangeText.split('-').map((p) => p.trim());
         let newContext: number | 'chapter_mode' | null;
 
-        if (part.includes('-')) {
-            const [startPart, endPart] = part.split('-').map((p) => p.trim());
-
-            if (startPart.includes(':')) {
-                [startChapter, startVerse] = this.parseVerseRef(
-                    startPart,
-                    null,
-                );
-                if (endPart.includes(':')) {
-                    [endChapter, endVerse] = this.parseVerseRef(endPart, null);
-                } else {
-                    endChapter = startChapter;
-                    endVerse = parseInt(endPart, 10);
-                }
-                newContext = endChapter;
-            } else if (endPart.includes(':')) {
-                if (typeof context === 'number') {
-                    startChapter = context;
-                    startVerse = parseInt(startPart, 10);
-                } else {
-                    startChapter = parseInt(startPart, 10);
-                    startVerse = 1;
-                }
-                [endChapter, endVerse] = this.parseVerseRef(endPart, null);
-                newContext = endChapter;
+        if (startPart.includes(':')) {
+            const [startChapter, startVerse] = startPart
+                .split(':')
+                .map((s) => parseInt(s, 10));
+            let endChapter: number, endVerse: number;
+            if (endPart.includes(':')) {
+                [endChapter, endVerse] = endPart
+                    .split(':')
+                    .map((s) => parseInt(s, 10));
             } else {
-                if (typeof context === 'number') {
-                    startChapter = context;
-                    startVerse = parseInt(startPart, 10);
-                    endChapter = context;
-                    endVerse = parseInt(endPart, 10);
-                    newContext = context;
-                } else {
-                    startChapter = parseInt(startPart, 10);
-                    startVerse = 1;
-                    endChapter = parseInt(endPart, 10);
-                    endVerse = book.verseCount(endChapter, system);
-                    newContext = 'chapter_mode';
-                }
-            }
-        } else {
-            if (part.includes(':')) {
-                [startChapter, startVerse] = this.parseVerseRef(part, null);
                 endChapter = startChapter;
-                endVerse = startVerse;
-                newContext = startChapter;
-            } else {
-                if (typeof context === 'number') {
-                    startChapter = context;
-                    startVerse = parseInt(part, 10);
-                    endChapter = startChapter;
-                    endVerse = startVerse;
-                    newContext = context;
-                } else {
-                    startChapter = parseInt(part, 10);
-                    startVerse = 1;
-                    endChapter = startChapter;
-                    endVerse = book.verseCount(startChapter, system);
-                    newContext = 'chapter_mode';
-                }
+                endVerse = parseInt(endPart, 10);
             }
+            ranges.push({
+                startChapter,
+                startVerse,
+                endChapter,
+                endVerse,
+            });
+            newContext = endChapter;
+        } else if (endPart.includes(':')) {
+            let startChapter: number, startVerse: number;
+            if (typeof context === 'number') {
+                startChapter = context;
+                startVerse = parseInt(startPart, 10);
+            } else {
+                startChapter = parseInt(startPart, 10);
+                startVerse = 1;
+            }
+            const [endChapter, endVerse] = endPart
+                .split(':')
+                .map((s) => parseInt(s, 10));
+            ranges.push({
+                startChapter,
+                startVerse,
+                endChapter,
+                endVerse,
+            });
+            newContext = endChapter;
+        } else if (book.chapterCount === 1) {
+            ranges.push(
+                this.versesToRange(
+                    1,
+                    parseInt(startPart, 10),
+                    parseInt(endPart, 10),
+                ),
+            );
+            newContext = 1;
+        } else if (typeof context === 'number') {
+            ranges.push(
+                this.versesToRange(
+                    context,
+                    parseInt(startPart, 10),
+                    parseInt(endPart, 10),
+                ),
+            );
+            newContext = context;
+        } else {
+            ranges.push(
+                this.chaptersToRange(
+                    book,
+                    parseInt(startPart, 10),
+                    parseInt(endPart, 10),
+                    system,
+                ),
+            );
+            newContext = 'chapter_mode';
         }
 
-        const range: Range = { startChapter, startVerse, endChapter, endVerse };
-        this.validateRange(range, book, system);
-        ranges.push(range);
+        const addedRange = ranges[ranges.length - 1];
+        this.validateRange(addedRange, book, system);
         return newContext;
     }
 
-    private static parseVerseRef(
-        text: string,
-        currentChapter: number | null,
-    ): [number, number] {
-        if (text.includes(':')) {
-            const [c, v] = text.split(':').map((s) => parseInt(s, 10));
-            return [c, v];
-        } else if (currentChapter !== null) {
-            return [currentChapter, parseInt(text, 10)];
+    private static parseSingleReference(
+        refText: string,
+        context: number | 'chapter_mode' | null,
+        book: Book,
+        ranges: Range[],
+        system: VersificationSystem,
+    ): number | 'chapter_mode' | null {
+        let newContext: number | 'chapter_mode' | null;
+
+        if (refText.includes(':')) {
+            const [chapter, verse] = refText
+                .split(':')
+                .map((s) => parseInt(s, 10));
+            ranges.push(this.versesToRange(chapter, verse, verse));
+            newContext = chapter;
+        } else if (book.chapterCount === 1) {
+            ranges.push(
+                this.versesToRange(
+                    1,
+                    parseInt(refText, 10),
+                    parseInt(refText, 10),
+                ),
+            );
+            newContext = 1;
+        } else if (typeof context === 'number') {
+            ranges.push(
+                this.versesToRange(
+                    context,
+                    parseInt(refText, 10),
+                    parseInt(refText, 10),
+                ),
+            );
+            newContext = context;
         } else {
-            return [parseInt(text, 10), 1];
+            ranges.push(
+                this.chaptersToRange(
+                    book,
+                    parseInt(refText, 10),
+                    parseInt(refText, 10),
+                    system,
+                ),
+            );
+            newContext = 'chapter_mode';
         }
+
+        const addedRange = ranges[ranges.length - 1];
+        this.validateRange(addedRange, book, system);
+        return newContext;
+    }
+
+    private static versesToRange(
+        chapter: number,
+        startVerse: number,
+        endVerse: number,
+    ): Range {
+        return {
+            startChapter: chapter,
+            startVerse,
+            endChapter: chapter,
+            endVerse,
+        };
     }
 
     private static chaptersToRange(

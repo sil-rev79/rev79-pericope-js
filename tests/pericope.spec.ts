@@ -17,9 +17,25 @@ describe('Pericope', () => {
             expect(pericope.toString()).toBe('GEN 1:1');
         });
 
+        it('parses a single verse reference in a single-chapter book', () => {
+            const pericope = new Pericope('JUD 20');
+            expect(pericope.toString()).toBe('JUD 1:20');
+        });
+
         it('parses a verse range', () => {
             const pericope = new Pericope('GEN 1:1-3');
             expect(pericope.toString()).toBe('GEN 1:1-3');
+        });
+
+        it('parses a chapterless range for a single-chapter book', () => {
+            const pericope = new Pericope('JUD 22-24');
+            expect(pericope.rangeCount()).toBe(1);
+            const range = pericope.ranges[0];
+
+            expect(range.startChapter).toBe(1);
+            expect(range.startVerse).toBe(22);
+            expect(range.endChapter).toBe(1);
+            expect(range.endVerse).toBe(24);
         });
 
         it('parses a cross-chapter range', () => {
@@ -48,6 +64,10 @@ describe('Pericope', () => {
 
         it('raises InvalidVerseError for invalid verse', () => {
             expect(() => new Pericope('GEN 1:999')).toThrow(InvalidVerseError);
+        });
+
+        it('raises InvalidVerseError for invalid verse in single chapter book', () => {
+            expect(() => new Pericope('JUD 999')).toThrow(InvalidVerseError);
         });
 
         it('raises error for range with start chapter after end chapter', () => {

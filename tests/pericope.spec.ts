@@ -181,6 +181,31 @@ describe('Pericope', () => {
         });
     });
 
+    describe('normalize', () => {
+        it('normalizes a mixed bunch of pericopes', () => {
+            const references = [
+                '2 Pet 2',
+                'Genesis 4,6,8',
+                'Obadiah 1:5-15',
+                'Exodus 3:8-10',
+                'Genesis 2:16',
+                'Jude',
+                'Genesis 2:17-3:24',
+                'Exodus 1:12-18',
+                'Obadiah 1:10-18',
+                '2 Peter 1,3',
+                'Genesis 2:1-15',
+            ];
+            const pericopes = references.map((ref) => new Pericope(ref));
+            const normalPericopes = Pericope.normalize(...pericopes);
+            expect(
+                normalPericopes
+                    .map((p) => p.toString('abbreviated'))
+                    .join('; '),
+            ).toBe('GEN 2–4,6,8; EXO 1:12–18,3:8–10; OBA 5–18; 2PE; JUD');
+        });
+    });
+
     describe('validation and counting', () => {
         const p = new Pericope('GEN 1:1-3');
 

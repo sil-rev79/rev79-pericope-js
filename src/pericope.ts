@@ -8,7 +8,7 @@ import { SetOperations } from './set-operations.js';
 
 export class Pericope {
     readonly book: Book;
-    readonly ranges: Range[];
+    ranges: Range[];
     readonly system: VersificationSystem;
 
     constructor(
@@ -29,6 +29,27 @@ export class Pericope {
         system: VersificationSystem = 'english',
     ): Pericope[] {
         return TextProcessor.parse(text, system);
+    }
+
+    static normalize(...pericopes: Pericope[]): Pericope[] {
+        const grouped = new Map<string, Pericope[]>();
+        for (const p of pericopes) {
+            if (!grouped.has(p.book.code)) {
+                grouped.set(p.book.code, []);
+            }
+            grouped.get(p.book.code)!.push(p);
+        }
+
+        const normal: Pericope[] = [];
+        for (const pericopeSet of grouped.values()) {
+            const pericope = pericopeSet.pop()!;
+            for (const p of pericopeSet) {
+                pericope.addRanges(...p.ranges);
+            }
+            normal.push(pericope.normalize());
+        }
+
+        return normal.sort((a, b) => a.book.number - b.book.number);
     }
 
     toString(
@@ -176,6 +197,10 @@ export class Pericope {
 
     rangeCount(): number {
         return this.ranges.length;
+    }
+
+    addRanges(...additionalRanges: Range[]): void {
+        this.ranges.push(...additionalRanges);
     }
 
     // Math Operations

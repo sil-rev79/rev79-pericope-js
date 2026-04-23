@@ -1,6 +1,12 @@
 import { Book } from './book.js';
 import { Pericope, Range } from './pericope.js';
-import { ParseError, InvalidBookError, InvalidChapterError, InvalidVerseError } from './errors.js';
+import {
+    ParseError,
+    InvalidBookError,
+    InvalidChapterError,
+    InvalidVerseError,
+    InvalidRangeError,
+} from './errors.js';
 import { VersificationSystem } from './versification.js';
 
 export class TextProcessor {
@@ -140,6 +146,12 @@ export class TextProcessor {
         if (!book.isValidChapter(range.endChapter)) throw new InvalidChapterError(book.code, range.endChapter);
         if (!book.isValidVerse(range.startChapter, range.startVerse)) throw new InvalidVerseError(book.code, range.startChapter, range.startVerse);
         if (!book.isValidVerse(range.endChapter, range.endVerse)) throw new InvalidVerseError(book.code, range.endChapter, range.endVerse);
+        if (
+            range.startChapter > range.endChapter ||
+            (range.startChapter == range.endChapter &&
+                range.startVerse > range.endVerse)
+        )
+            throw new InvalidRangeError(this.formatRanges([range]));
     }
 
     /**

@@ -42,6 +42,18 @@ describe('Pericope', () => {
             expect(() => new Pericope('GEN 1:999')).toThrow(InvalidVerseError);
         });
 
+        it('raises error for range with start chapter after end chapter', () => {
+            expect(() => new Pericope('GEN 2:3 - 1:8')).toThrow(
+                InvalidRangeError,
+            );
+        });
+
+        it('raises error for range with start verse after end verse in one chapter', () => {
+            expect(() => new Pericope('GEN 2:8 - 2:3')).toThrow(
+                InvalidRangeError,
+            );
+        });
+
         it('handles book names with flexible matching', () => {
             const pericope = new Pericope('Genesis 1:1');
             expect(pericope.book.code).toBe('GEN');

@@ -3,7 +3,7 @@ import { Pericope, Range } from './pericope.js';
 
 export class MathOperations {
     /**
-     * Calculates the number of verses in a specific chapter that are included 
+     * Calculates the number of verses in a specific chapter that are included
      * in the given pericope.
      */
     static versesInChapter(pericope: Pericope, chapter: number): number {
@@ -12,9 +12,13 @@ export class MathOperations {
         let count = 0;
         for (const range of pericope.ranges) {
             if (chapter >= range.startChapter && chapter <= range.endChapter) {
-                const startVerse = chapter === range.startChapter ? range.startVerse : 1;
-                const endVerse = chapter === range.endChapter ? range.endVerse : pericope.book.verseCount(chapter);
-                count += (endVerse - startVerse + 1);
+                const startVerse =
+                    chapter === range.startChapter ? range.startVerse : 1;
+                const endVerse =
+                    chapter === range.endChapter
+                        ? range.endVerse
+                        : pericope.book.verseCount(chapter);
+                count += endVerse - startVerse + 1;
             }
         }
         return count;
@@ -27,10 +31,18 @@ export class MathOperations {
     static chaptersInRange(pericope: Pericope): Record<number, number[]> {
         const result: Record<number, number[]> = {};
         for (const range of pericope.ranges) {
-            for (let chapter = range.startChapter; chapter <= range.endChapter; chapter++) {
+            for (
+                let chapter = range.startChapter;
+                chapter <= range.endChapter;
+                chapter++
+            ) {
                 if (!result[chapter]) result[chapter] = [];
-                const startVerse = chapter === range.startChapter ? range.startVerse : 1;
-                const endVerse = chapter === range.endChapter ? range.endVerse : pericope.book.verseCount(chapter);
+                const startVerse =
+                    chapter === range.startChapter ? range.startVerse : 1;
+                const endVerse =
+                    chapter === range.endChapter
+                        ? range.endVerse
+                        : pericope.book.verseCount(chapter);
 
                 for (let verse = startVerse; verse <= endVerse; verse++) {
                     if (!result[chapter].includes(verse)) {
@@ -47,7 +59,7 @@ export class MathOperations {
     }
 
     /**
-     * Calculates the "density" of the pericope: the ratio of included verses 
+     * Calculates the "density" of the pericope: the ratio of included verses
      * to the total possible verses in the chapters spanned by the pericope.
      */
     static density(pericope: Pericope): number {
@@ -65,13 +77,15 @@ export class MathOperations {
     }
 
     /**
-     * Identifies verses that are missing (gaps) between the first and last 
+     * Identifies verses that are missing (gaps) between the first and last
      * verse of the pericope.
      */
     static gaps(pericope: Pericope): VerseRef[] {
         if (pericope.ranges.length === 0 || pericope.isSingleVerse()) return [];
 
-        const allVersesSet = new Set(pericope.toArray().map((v: VerseRef) => v.toInt()));
+        const allVersesSet = new Set(
+            pericope.toArray().map((v: VerseRef) => v.toInt()),
+        );
         const first = pericope.firstVerse();
         const last = pericope.lastVerse();
         if (!first || !last) return [];
@@ -90,13 +104,15 @@ export class MathOperations {
     }
 
     /**
-     * Breaks a potentially discontinuous pericope into a list of 
+     * Breaks a potentially discontinuous pericope into a list of
      * continuous pericopes.
      */
     static continuousRanges(pericope: Pericope): Pericope[] {
         if (pericope.ranges.length === 0) return [];
 
-        const verses = pericope.toArray().sort((a: VerseRef, b: VerseRef) => a.compareTo(b));
+        const verses = pericope
+            .toArray()
+            .sort((a: VerseRef, b: VerseRef) => a.compareTo(b));
         if (verses.length <= 1) return [pericope];
 
         const groups: VerseRef[][] = [];
@@ -115,7 +131,9 @@ export class MathOperations {
         }
         groups.push(currentGroup);
 
-        return groups.map((group: VerseRef[]) => this.createPericopeFromGroup(group, pericope.book));
+        return groups.map((group: VerseRef[]) =>
+            this.createPericopeFromGroup(group, pericope.book),
+        );
     }
 
     /**
@@ -124,7 +142,9 @@ export class MathOperations {
     static intersects(pericope: Pericope, other: Pericope): boolean {
         if (!this.isValidComparisonTarget(pericope, other)) return false;
 
-        const myVerses = new Set(pericope.toArray().map((v: VerseRef) => v.toInt()));
+        const myVerses = new Set(
+            pericope.toArray().map((v: VerseRef) => v.toInt()),
+        );
         for (const verse of other.toArray()) {
             if (myVerses.has(verse.toInt())) return true;
         }
@@ -137,7 +157,9 @@ export class MathOperations {
     static contains(pericope: Pericope, other: Pericope): boolean {
         if (!this.isValidComparisonTarget(pericope, other)) return false;
 
-        const myVerses = new Set(pericope.toArray().map((v: VerseRef) => v.toInt()));
+        const myVerses = new Set(
+            pericope.toArray().map((v: VerseRef) => v.toInt()),
+        );
         for (const verse of other.toArray()) {
             if (!myVerses.has(verse.toInt())) return false;
         }
@@ -157,7 +179,10 @@ export class MathOperations {
         const nextOfMyLast = myLast.nextVerse();
         const nextOfOtherLast = otherLast.nextVerse();
 
-        return (nextOfMyLast?.toInt() === otherFirst.toInt()) || (nextOfOtherLast?.toInt() === myFirst.toInt());
+        return (
+            nextOfMyLast?.toInt() === otherFirst.toInt() ||
+            nextOfOtherLast?.toInt() === myFirst.toInt()
+        );
     }
 
     static precedes(pericope: Pericope, other: Pericope): boolean {
@@ -176,20 +201,32 @@ export class MathOperations {
         return myFirst.isAfter(otherLast);
     }
 
-    private static isValidComparisonTarget(pericope: Pericope, other: Pericope): boolean {
+    private static isValidComparisonTarget(
+        pericope: Pericope,
+        other: Pericope,
+    ): boolean {
         return other instanceof Pericope && pericope.book.equals(other.book);
     }
 
-    private static createPericopeFromGroup(group: VerseRef[], book: any): Pericope {
+    private static createPericopeFromGroup(
+        group: VerseRef[],
+        book: any,
+    ): Pericope {
         if (group.length === 1) {
-            return new Pericope(`${book.code} ${group[0].chapter}:${group[0].verse}`);
+            return new Pericope(
+                `${book.code} ${group[0].chapter}:${group[0].verse}`,
+            );
         }
         const first = group[0];
         const last = group[group.length - 1];
         if (first.chapter === last.chapter) {
-            return new Pericope(`${book.code} ${first.chapter}:${first.verse}-${last.verse}`);
+            return new Pericope(
+                `${book.code} ${first.chapter}:${first.verse}-${last.verse}`,
+            );
         } else {
-            return new Pericope(`${book.code} ${first.chapter}:${first.verse}-${last.chapter}:${last.verse}`);
+            return new Pericope(
+                `${book.code} ${first.chapter}:${first.verse}-${last.chapter}:${last.verse}`,
+            );
         }
     }
 }

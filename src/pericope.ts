@@ -17,18 +17,29 @@ export class Pericope {
     readonly ranges: Range[];
     readonly system: VersificationSystem;
 
-    constructor(referenceString: string, system: VersificationSystem = 'english') {
+    constructor(
+        referenceString: string,
+        system: VersificationSystem = 'english',
+    ) {
         this.system = system;
-        const { book, ranges } = TextProcessor.parseReference(referenceString, system);
+        const { book, ranges } = TextProcessor.parseReference(
+            referenceString,
+            system,
+        );
         this.book = book;
         this.ranges = ranges;
     }
 
-    static parse(text: string, system: VersificationSystem = 'english'): Pericope[] {
+    static parse(
+        text: string,
+        system: VersificationSystem = 'english',
+    ): Pericope[] {
         return TextProcessor.parse(text, system);
     }
 
-    toString(format: 'canonical' | 'full_name' | 'abbreviated' = 'canonical'): string {
+    toString(
+        format: 'canonical' | 'full_name' | 'abbreviated' = 'canonical',
+    ): string {
         return TextProcessor.formatPericope(this, format);
     }
 
@@ -40,7 +51,10 @@ export class Pericope {
         for (const range of this.ranges) {
             for (let ch = range.startChapter; ch <= range.endChapter; ch++) {
                 const startV = ch === range.startChapter ? range.startVerse : 1;
-                const endV = ch === range.endChapter ? range.endVerse : this.book.verseCount(ch, this.system);
+                const endV =
+                    ch === range.endChapter
+                        ? range.endVerse
+                        : this.book.verseCount(ch, this.system);
                 for (let v = startV; v <= endV; v++) {
                     verses.push(new VerseRef(this.book, ch, v));
                 }
@@ -58,17 +72,19 @@ export class Pericope {
     }
 
     isSingleVerse(): boolean {
-        return this.ranges.length === 1 &&
+        return (
+            this.ranges.length === 1 &&
             this.ranges[0].startChapter === this.ranges[0].endChapter &&
-            this.ranges[0].startVerse === this.ranges[0].endVerse;
+            this.ranges[0].startVerse === this.ranges[0].endVerse
+        );
     }
 
     isSingleChapter(): boolean {
-        return this.ranges.every(r => r.startChapter === r.endChapter);
+        return this.ranges.every((r) => r.startChapter === r.endChapter);
     }
 
     spansChapters(): boolean {
-        return this.ranges.some(r => r.startChapter !== r.endChapter);
+        return this.ranges.some((r) => r.startChapter !== r.endChapter);
     }
 
     verseCount(): number {
@@ -99,7 +115,11 @@ export class Pericope {
         if (this.ranges.length === 0) return undefined;
         let min: Range = this.ranges[0];
         for (const r of this.ranges) {
-            if (r.startChapter < min.startChapter || (r.startChapter === min.startChapter && r.startVerse < min.startVerse)) {
+            if (
+                r.startChapter < min.startChapter ||
+                (r.startChapter === min.startChapter &&
+                    r.startVerse < min.startVerse)
+            ) {
                 min = r;
             }
         }
@@ -113,7 +133,10 @@ export class Pericope {
         if (this.ranges.length === 0) return undefined;
         let max: Range = this.ranges[0];
         for (const r of this.ranges) {
-            if (r.endChapter > max.endChapter || (r.endChapter === max.endChapter && r.endVerse > max.endVerse)) {
+            if (
+                r.endChapter > max.endChapter ||
+                (r.endChapter === max.endChapter && r.endVerse > max.endVerse)
+            ) {
                 max = r;
             }
         }
@@ -148,7 +171,10 @@ export class Pericope {
     // Comparison
     equals(other: any): boolean {
         if (!(other instanceof Pericope)) return false;
-        return this.book.equals(other.book) && JSON.stringify(this.ranges) === JSON.stringify(other.ranges);
+        return (
+            this.book.equals(other.book) &&
+            JSON.stringify(this.ranges) === JSON.stringify(other.ranges)
+        );
     }
 
     intersects(other: Pericope): boolean {

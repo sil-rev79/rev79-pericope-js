@@ -1,25 +1,39 @@
 import { Book } from './book.js';
-import { InvalidBookError, InvalidChapterError, InvalidVerseError } from './errors.js';
+import {
+    InvalidBookError,
+    InvalidChapterError,
+    InvalidVerseError,
+} from './errors.js';
 
 export class VerseRef {
     readonly book: Book;
     readonly chapter: number;
     readonly verse: number;
 
-    constructor(book: Book | string, chapter: number | string, verse: number | string) {
-        const foundBook = book instanceof Book ? book : Book.findByCode(book.toString());
+    constructor(
+        book: Book | string,
+        chapter: number | string,
+        verse: number | string,
+    ) {
+        const foundBook =
+            book instanceof Book ? book : Book.findByCode(book.toString());
         if (!foundBook) {
             throw new InvalidBookError(book.toString());
         }
         this.book = foundBook;
-        this.chapter = typeof chapter === 'string' ? parseInt(chapter, 10) : chapter;
+        this.chapter =
+            typeof chapter === 'string' ? parseInt(chapter, 10) : chapter;
         this.verse = typeof verse === 'string' ? parseInt(verse, 10) : verse;
 
         if (this.chapter <= 0) {
             throw new InvalidChapterError(this.book.code, this.chapter);
         }
         if (this.verse <= 0) {
-            throw new InvalidVerseError(this.book.code, this.chapter, this.verse);
+            throw new InvalidVerseError(
+                this.book.code,
+                this.chapter,
+                this.verse,
+            );
         }
 
         this.validateReference();
@@ -35,7 +49,7 @@ export class VerseRef {
      * This allows for easy comparison and range checking.
      */
     toInt(): number {
-        return (this.book.number * 1000000) + (this.chapter * 1000) + this.verse;
+        return this.book.number * 1000000 + this.chapter * 1000 + this.verse;
     }
 
     isValid(): boolean {
@@ -52,7 +66,11 @@ export class VerseRef {
 
     equals(other: any): boolean {
         if (!(other instanceof VerseRef)) return false;
-        return this.book.equals(other.book) && this.chapter === other.chapter && this.verse === other.verse;
+        return (
+            this.book.equals(other.book) &&
+            this.chapter === other.chapter &&
+            this.verse === other.verse
+        );
     }
 
     /**
@@ -83,7 +101,7 @@ export class VerseRef {
 
     /**
      * Returns the next verse in the Bible.
-     * Handles crossing chapter boundaries. 
+     * Handles crossing chapter boundaries.
      * Returns undefined if this is the last verse of the book.
      */
     nextVerse(): VerseRef | undefined {
@@ -119,7 +137,11 @@ export class VerseRef {
             throw new InvalidChapterError(this.book.code, this.chapter);
         }
         if (this.verse > this.book.verseCount(this.chapter)) {
-            throw new InvalidVerseError(this.book.code, this.chapter, this.verse);
+            throw new InvalidVerseError(
+                this.book.code,
+                this.chapter,
+                this.verse,
+            );
         }
     }
 }

@@ -1,5 +1,13 @@
 import { distance } from 'fastest-levenshtein';
-import { BookInfo, BOOKS_BY_CODE, BOOKS_BY_NUMBER, ALIAS_TO_BOOK, ALL_BOOKS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from './book-data.js';
+import {
+    BookInfo,
+    BOOKS_BY_CODE,
+    BOOKS_BY_NUMBER,
+    ALIAS_TO_BOOK,
+    ALL_BOOKS,
+    OLD_TESTAMENT_BOOKS,
+    NEW_TESTAMENT_BOOKS,
+} from './book-data.js';
 import { Versification, VersificationSystem } from './versification.js';
 import { InvalidChapterError } from './errors.js';
 
@@ -49,14 +57,14 @@ export class Book {
     }
 
     static allBooks(): Book[] {
-        return ALL_BOOKS.map(info => new Book(info));
+        return ALL_BOOKS.map((info) => new Book(info));
     }
 
     static testamentBooks(testament: 'old' | 'new'): Book[] {
         if (testament === 'old') {
-            return OLD_TESTAMENT_BOOKS.map(info => new Book(info));
+            return OLD_TESTAMENT_BOOKS.map((info) => new Book(info));
         } else if (testament === 'new') {
-            return NEW_TESTAMENT_BOOKS.map(info => new Book(info));
+            return NEW_TESTAMENT_BOOKS.map((info) => new Book(info));
         }
         return [];
     }
@@ -70,7 +78,10 @@ export class Book {
      * Performs a fuzzy string search to find a book by name.
      * Uses Levenshtein distance to find the best match within maxDistance.
      */
-    private static findByFuzzyMatch(name: string, maxDistance: number = 2): Book | null {
+    private static findByFuzzyMatch(
+        name: string,
+        maxDistance: number = 2,
+    ): Book | null {
         if (name.length < 3) return null;
 
         let bestMatch: BookInfo | null = null;
@@ -107,7 +118,10 @@ export class Book {
      * Returns the number of verses in a given chapter.
      * Throws InvalidChapterError if the chapter is out of bounds for the book.
      */
-    verseCount(chapter: number, system: VersificationSystem = 'english'): number {
+    verseCount(
+        chapter: number,
+        system: VersificationSystem = 'english',
+    ): number {
         const result = Versification.verseCount(this.code, chapter, system);
         if (result !== undefined) return result;
         throw new InvalidChapterError(this.code, chapter);
@@ -118,11 +132,18 @@ export class Book {
         return result ?? 0;
     }
 
-    isValidChapter(chapter: number, system: VersificationSystem = 'english'): boolean {
+    isValidChapter(
+        chapter: number,
+        system: VersificationSystem = 'english',
+    ): boolean {
         return Versification.isValidChapter(this.code, chapter, system);
     }
 
-    isValidVerse(chapter: number, verse: number, system: VersificationSystem = 'english'): boolean {
+    isValidVerse(
+        chapter: number,
+        verse: number,
+        system: VersificationSystem = 'english',
+    ): boolean {
         return Versification.isValidVerse(this.code, chapter, verse, system);
     }
 
@@ -132,7 +153,7 @@ export class Book {
     matches(input: string | null | undefined): boolean {
         if (!input) return false;
         const inputLower = input.toLowerCase();
-        return this.aliases.some(alias => alias.toLowerCase() === inputLower);
+        return this.aliases.some((alias) => alias.toLowerCase() === inputLower);
     }
 
     toString(): string {

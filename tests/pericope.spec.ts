@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { Pericope } from '../src/pericope.js';
 import { VerseRef } from '../src/verse-ref.js';
-import { ParseError, InvalidBookError, InvalidChapterError, InvalidVerseError } from '../src/errors.js';
+import {
+    ParseError,
+    InvalidBookError,
+    InvalidChapterError,
+    InvalidVerseError,
+    InvalidRangeError,
+} from '../src/errors.js';
 
 describe('Pericope', () => {
     describe('constructor', () => {
@@ -35,7 +41,9 @@ describe('Pericope', () => {
         });
 
         it('raises InvalidChapterError for invalid chapter', () => {
-            expect(() => new Pericope('GEN 999:1')).toThrow(InvalidChapterError);
+            expect(() => new Pericope('GEN 999:1')).toThrow(
+                InvalidChapterError,
+            );
         });
 
         it('raises InvalidVerseError for invalid verse', () => {
@@ -88,7 +96,11 @@ describe('Pericope', () => {
             const pericope = new Pericope('GEN 1:1-3');
             const verses = pericope.toArray();
             expect(verses.length).toBe(3);
-            expect(verses.map(v => v.toString())).toEqual(['GEN 1:1', 'GEN 1:2', 'GEN 1:3']);
+            expect(verses.map((v) => v.toString())).toEqual([
+                'GEN 1:1',
+                'GEN 1:2',
+                'GEN 1:3',
+            ]);
         });
     });
 
@@ -130,14 +142,21 @@ describe('Pericope', () => {
         it('identifies gaps', () => {
             const p = new Pericope('GEN 1:1,3,5');
             const gaps = p.gaps();
-            expect(gaps.map(v => v.toString())).toEqual(['GEN 1:2', 'GEN 1:4']);
+            expect(gaps.map((v) => v.toString())).toEqual([
+                'GEN 1:2',
+                'GEN 1:4',
+            ]);
         });
 
         it('breaks into continuous ranges', () => {
             const p = new Pericope('GEN 1:1-3,5-7,10');
             const ranges = p.continuousRanges();
             expect(ranges.length).toBe(3);
-            expect(ranges.map(r => r.toString())).toEqual(['GEN 1:1-3', 'GEN 1:5-7', 'GEN 1:10']);
+            expect(ranges.map((r) => r.toString())).toEqual([
+                'GEN 1:1-3',
+                'GEN 1:5-7',
+                'GEN 1:10',
+            ]);
         });
     });
 

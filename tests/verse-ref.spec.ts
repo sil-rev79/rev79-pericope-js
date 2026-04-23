@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { Book } from '../src/book.js';
 import { VerseRef } from '../src/verse-ref.js';
-import { InvalidBookError, InvalidChapterError, InvalidVerseError } from '../src/errors.js';
+import {
+    InvalidBookError,
+    InvalidChapterError,
+    InvalidVerseError,
+} from '../src/errors.js';
 
 describe('VerseRef', () => {
     const genesis = Book.findByCode('GEN')!;
@@ -29,17 +33,27 @@ describe('VerseRef', () => {
         });
 
         it('raises InvalidBookError for invalid book', () => {
-            expect(() => new VerseRef('INVALID', 1, 1)).toThrow(InvalidBookError);
+            expect(() => new VerseRef('INVALID', 1, 1)).toThrow(
+                InvalidBookError,
+            );
         });
 
         it('raises InvalidChapterError for invalid chapter', () => {
-            expect(() => new VerseRef(genesis, 0, 1)).toThrow(InvalidChapterError);
-            expect(() => new VerseRef(genesis, -1, 1)).toThrow(InvalidChapterError);
+            expect(() => new VerseRef(genesis, 0, 1)).toThrow(
+                InvalidChapterError,
+            );
+            expect(() => new VerseRef(genesis, -1, 1)).toThrow(
+                InvalidChapterError,
+            );
         });
 
         it('raises InvalidVerseError for invalid verse', () => {
-            expect(() => new VerseRef(genesis, 1, 0)).toThrow(InvalidVerseError);
-            expect(() => new VerseRef(genesis, 1, -1)).toThrow(InvalidVerseError);
+            expect(() => new VerseRef(genesis, 1, 0)).toThrow(
+                InvalidVerseError,
+            );
+            expect(() => new VerseRef(genesis, 1, -1)).toThrow(
+                InvalidVerseError,
+            );
         });
     });
 
@@ -58,13 +72,13 @@ describe('VerseRef', () => {
     describe('toInt', () => {
         it('returns BBBCCCVVV format', () => {
             const verseRef = new VerseRef(genesis, 1, 1);
-            const expected = (1 * 1000000) + (1 * 1000) + 1; // 1001001
+            const expected = 1 * 1000000 + 1 * 1000 + 1; // 1001001
             expect(verseRef.toInt()).toBe(expected);
         });
 
         it('handles different values', () => {
             const verseRef = new VerseRef(matthew, 5, 3);
-            const expected = (40 * 1000000) + (5 * 1000) + 3; // 40005003
+            const expected = 40 * 1000000 + 5 * 1000 + 3; // 40005003
             expect(verseRef.toInt()).toBe(expected);
         });
     });

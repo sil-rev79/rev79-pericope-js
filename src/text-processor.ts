@@ -39,10 +39,7 @@ export class TextProcessor {
         pericope: Pericope,
         format: 'canonical' | 'full_name' | 'abbreviated' = 'canonical',
     ): string {
-        if (pericope.ranges.length === 0) return '';
-        const bookPrefix =
-            format === 'full_name' ? pericope.book.name : pericope.book.code;
-        return `${bookPrefix} ${this.formatRanges(pericope.ranges)}`;
+        return pericope.toString(format);
     }
 
     /**

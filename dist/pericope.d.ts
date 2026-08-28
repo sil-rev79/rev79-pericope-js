@@ -1,18 +1,14 @@
 import { Book } from './book.js';
 import { VerseRef } from './verse-ref.js';
+import { Range } from './range.js';
 import { VersificationSystem } from './versification.js';
-export interface Range {
-    startChapter: number;
-    startVerse: number;
-    endChapter: number;
-    endVerse: number;
-}
 export declare class Pericope {
     readonly book: Book;
-    readonly ranges: Range[];
+    ranges: Range[];
     readonly system: VersificationSystem;
     constructor(referenceString: string, system?: VersificationSystem);
     static parse(text: string, system?: VersificationSystem): Pericope[];
+    static normalize(...pericopes: Pericope[]): Pericope[];
     toString(format?: 'canonical' | 'full_name' | 'abbreviated'): string;
     /**
      * Converts the pericope into an array of individual VerseRef objects.
@@ -38,6 +34,7 @@ export declare class Pericope {
      */
     lastVerse(): VerseRef | undefined;
     rangeCount(): number;
+    addRanges(...additionalRanges: Range[]): void;
     versesInChapter(chapter: number): number;
     chaptersInRange(): Record<number, number[]>;
     density(): number;

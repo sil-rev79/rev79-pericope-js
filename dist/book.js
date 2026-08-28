@@ -1,5 +1,5 @@
 import { distance } from 'fastest-levenshtein';
-import { BOOKS_BY_CODE, BOOKS_BY_NUMBER, ALIAS_TO_BOOK, ALL_BOOKS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from './book-data.js';
+import { BOOKS_BY_CODE, BOOKS_BY_NUMBER, ALIAS_TO_BOOK, ALL_BOOKS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS, } from './book-data.js';
 import { Versification } from './versification.js';
 import { InvalidChapterError } from './errors.js';
 export class Book {
@@ -45,14 +45,14 @@ export class Book {
         return this.findByName(aliasName);
     }
     static allBooks() {
-        return ALL_BOOKS.map(info => new Book(info));
+        return ALL_BOOKS.map((info) => new Book(info));
     }
     static testamentBooks(testament) {
         if (testament === 'old') {
-            return OLD_TESTAMENT_BOOKS.map(info => new Book(info));
+            return OLD_TESTAMENT_BOOKS.map((info) => new Book(info));
         }
         else if (testament === 'new') {
-            return NEW_TESTAMENT_BOOKS.map(info => new Book(info));
+            return NEW_TESTAMENT_BOOKS.map((info) => new Book(info));
         }
         return [];
     }
@@ -64,9 +64,10 @@ export class Book {
      * Performs a fuzzy string search to find a book by name.
      * Uses Levenshtein distance to find the best match within maxDistance.
      */
-    static findByFuzzyMatch(name, maxDistance = 2) {
+    static findByFuzzyMatch(name) {
         if (name.length < 3)
             return null;
+        const maxDistance = Math.ceil(name.length / 4.0);
         let bestMatch = null;
         let bestDistance = maxDistance + 1;
         for (const [aliasName, bookInfo] of Object.entries(ALIAS_TO_BOOK)) {
@@ -117,7 +118,7 @@ export class Book {
         if (!input)
             return false;
         const inputLower = input.toLowerCase();
-        return this.aliases.some(alias => alias.toLowerCase() === inputLower);
+        return this.aliases.some((alias) => alias.toLowerCase() === inputLower);
     }
     toString() {
         return this.code;

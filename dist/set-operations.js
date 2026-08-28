@@ -1,5 +1,6 @@
 import { VerseRef } from './verse-ref.js';
 import { Pericope } from './pericope.js';
+import { Range } from './range.js';
 export class SetOperations {
     /**
      * Combines all verses from two pericopes into a new pericope.
@@ -14,11 +15,11 @@ export class SetOperations {
             return pericope;
         const combined = new Set([
             ...pericope.toArray().map((v) => v.toInt()),
-            ...other.toArray().map((v) => v.toInt())
+            ...other.toArray().map((v) => v.toInt()),
         ]);
         const verses = Array.from(combined)
             .sort((a, b) => a - b)
-            .map(v => this.intToVerseRef(v, pericope.book));
+            .map((v) => this.intToVerseRef(v, pericope.book));
         return this.versesToPericope(verses, pericope.book);
     }
     /**
@@ -28,7 +29,8 @@ export class SetOperations {
         if (!this.isValidSetOperationTarget(pericope, other))
             return this.createEmptyPericope(pericope.book);
         const otherVerses = new Set(other.toArray().map((v) => v.toInt()));
-        const common = pericope.toArray()
+        const common = pericope
+            .toArray()
             .filter((v) => otherVerses.has(v.toInt()))
             .sort((a, b) => a.compareTo(b));
         if (common.length === 0)
@@ -43,7 +45,8 @@ export class SetOperations {
         if (!this.isValidSetOperationTarget(pericope, other))
             return pericope;
         const otherVerses = new Set(other.toArray().map((v) => v.toInt()));
-        const remaining = pericope.toArray()
+        const remaining = pericope
+            .toArray()
             .filter((v) => !otherVerses.has(v.toInt()))
             .sort((a, b) => a.compareTo(b));
         if (remaining.length === 0)
@@ -56,7 +59,7 @@ export class SetOperations {
     static complement(pericope, scope) {
         const scopeVerses = this.determineScopeVerses(pericope, scope);
         const myVerses = new Set(pericope.toArray().map((v) => v.toInt()));
-        const complement = (Array.from(scopeVerses))
+        const complement = Array.from(scopeVerses)
             .filter((v) => !myVerses.has(v))
             .sort((a, b) => a - b)
             .map((v) => this.intToVerseRef(v, pericope.book));
@@ -70,7 +73,7 @@ export class SetOperations {
     static normalize(pericope) {
         if (pericope.ranges.length === 0)
             return pericope;
-        const unique = (Array.from(new Set(pericope.toArray().map((v) => v.toInt()))))
+        const unique = Array.from(new Set(pericope.toArray().map((v) => v.toInt())))
             .sort((a, b) => a - b)
             .map((v) => this.intToVerseRef(v, pericope.book));
         return this.versesToPericope(unique, pericope.book);
@@ -100,15 +103,17 @@ export class SetOperations {
         }
         const sorted = Array.from(expanded)
             .sort((a, b) => a - b)
-            .map(v => this.intToVerseRef(v, pericope.book));
+            .map((v) => this.intToVerseRef(v, pericope.book));
         return this.versesToPericope(sorted, pericope.book);
     }
     /**
      * Removes a specified number of verses from the start and end of the pericope.
      */
     static contract(pericope, versesFromStart = 0, versesFromEnd = 0) {
-        const verses = pericope.toArray().sort((a, b) => a.compareTo(b));
-        if (verses.length <= (versesFromStart + versesFromEnd)) {
+        const verses = pericope
+            .toArray()
+            .sort((a, b) => a.compareTo(b));
+        if (verses.length <= versesFromStart + versesFromEnd) {
             return this.createEmptyPericope(pericope.book);
         }
         const startIdx = versesFromStart;
@@ -130,7 +135,7 @@ export class SetOperations {
         const all = new Set();
         for (let chapter = 1; chapter <= book.chapterCount; chapter++) {
             for (let verse = 1; verse <= book.verseCount(chapter); verse++) {
-                all.add((book.number * 1000000) + (chapter * 1000) + verse);
+                all.add(book.number * 1000000 + chapter * 1000 + verse);
             }
         }
         return all;
@@ -156,24 +161,16 @@ export class SetOperations {
                 currentEnd = verses[i];
             }
             else {
-                ranges.push(this.buildRange(currentStart, currentEnd));
+                ranges.push(Range.fromVerseRefs(currentStart, currentEnd));
                 currentStart = verses[i];
                 currentEnd = verses[i];
             }
         }
-        ranges.push(this.buildRange(currentStart, currentEnd));
+        ranges.push(Range.fromVerseRefs(currentStart, currentEnd));
         const p = new Pericope(`${book.code} 1:1`);
         p.ranges = ranges;
         p.book = book;
         return p;
-    }
-    static buildRange(start, end) {
-        return {
-            startChapter: start.chapter,
-            startVerse: start.verse,
-            endChapter: end.chapter,
-            endVerse: end.verse
-        };
     }
     static intToVerseRef(val, book) {
         const chapter = Math.floor((val % 1000000) / 1000);

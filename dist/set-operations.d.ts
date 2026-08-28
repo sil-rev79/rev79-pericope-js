@@ -43,6 +43,5 @@ export declare class SetOperations {
      * with optimized (merged) ranges.
      */
     private static versesToPericope;
-    private static buildRange;
     private static intToVerseRef;
 }

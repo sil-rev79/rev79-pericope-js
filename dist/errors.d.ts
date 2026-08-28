@@ -1,3 +1,4 @@
+import { Range } from './range.js';
 /**
  * Base error class for all pericope-related errors
  */
@@ -26,7 +27,7 @@ export declare class InvalidVerseError extends PericopeError {
  * Raised when an invalid range is provided
  */
 export declare class InvalidRangeError extends PericopeError {
-    constructor(rangeText: string);
+    constructor(range: Range | string);
 }
 /**
  * Raised when parsing fails

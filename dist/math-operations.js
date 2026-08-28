@@ -11,8 +11,10 @@ export class MathOperations {
         for (const range of pericope.ranges) {
             if (chapter >= range.startChapter && chapter <= range.endChapter) {
                 const startVerse = chapter === range.startChapter ? range.startVerse : 1;
-                const endVerse = chapter === range.endChapter ? range.endVerse : pericope.book.verseCount(chapter);
-                count += (endVerse - startVerse + 1);
+                const endVerse = chapter === range.endChapter
+                    ? range.endVerse
+                    : pericope.book.verseCount(chapter);
+                count += endVerse - startVerse + 1;
             }
         }
         return count;
@@ -28,7 +30,9 @@ export class MathOperations {
                 if (!result[chapter])
                     result[chapter] = [];
                 const startVerse = chapter === range.startChapter ? range.startVerse : 1;
-                const endVerse = chapter === range.endChapter ? range.endVerse : pericope.book.verseCount(chapter);
+                const endVerse = chapter === range.endChapter
+                    ? range.endVerse
+                    : pericope.book.verseCount(chapter);
                 for (let verse = startVerse; verse <= endVerse; verse++) {
                     if (!result[chapter].includes(verse)) {
                         result[chapter].push(verse);
@@ -88,7 +92,9 @@ export class MathOperations {
     static continuousRanges(pericope) {
         if (pericope.ranges.length === 0)
             return [];
-        const verses = pericope.toArray().sort((a, b) => a.compareTo(b));
+        const verses = pericope
+            .toArray()
+            .sort((a, b) => a.compareTo(b));
         if (verses.length <= 1)
             return [pericope];
         const groups = [];
@@ -145,7 +151,8 @@ export class MathOperations {
             return false;
         const nextOfMyLast = myLast.nextVerse();
         const nextOfOtherLast = otherLast.nextVerse();
-        return (nextOfMyLast?.toInt() === otherFirst.toInt()) || (nextOfOtherLast?.toInt() === myFirst.toInt());
+        return (nextOfMyLast?.toInt() === otherFirst.toInt() ||
+            nextOfOtherLast?.toInt() === myFirst.toInt());
     }
     static precedes(pericope, other) {
         if (!this.isValidComparisonTarget(pericope, other))

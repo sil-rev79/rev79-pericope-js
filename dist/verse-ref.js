@@ -1,5 +1,5 @@
 import { Book } from './book.js';
-import { InvalidBookError, InvalidChapterError, InvalidVerseError } from './errors.js';
+import { InvalidBookError, InvalidChapterError, InvalidVerseError, } from './errors.js';
 export class VerseRef {
     book;
     chapter;
@@ -10,7 +10,8 @@ export class VerseRef {
             throw new InvalidBookError(book.toString());
         }
         this.book = foundBook;
-        this.chapter = typeof chapter === 'string' ? parseInt(chapter, 10) : chapter;
+        this.chapter =
+            typeof chapter === 'string' ? parseInt(chapter, 10) : chapter;
         this.verse = typeof verse === 'string' ? parseInt(verse, 10) : verse;
         if (this.chapter <= 0) {
             throw new InvalidChapterError(this.book.code, this.chapter);
@@ -29,7 +30,7 @@ export class VerseRef {
      * This allows for easy comparison and range checking.
      */
     toInt() {
-        return (this.book.number * 1000000) + (this.chapter * 1000) + this.verse;
+        return this.book.number * 1000000 + this.chapter * 1000 + this.verse;
     }
     isValid() {
         if (!this.book.isValid())
@@ -48,7 +49,9 @@ export class VerseRef {
     equals(other) {
         if (!(other instanceof VerseRef))
             return false;
-        return this.book.equals(other.book) && this.chapter === other.chapter && this.verse === other.verse;
+        return (this.book.equals(other.book) &&
+            this.chapter === other.chapter &&
+            this.verse === other.verse);
     }
     /**
      * Compares this verse reference with another.

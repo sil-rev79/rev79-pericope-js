@@ -5,4 +5,5 @@ export * from './errors.js';
 export * from './text-processor.js';
 export * from './verse-ref.js';
 export * from './versification.js';
+export * from './range.js';
 //# sourceMappingURL=index.js.map

@@ -1,5 +1,6 @@
 import { Book } from './book.js';
-import { Pericope, Range } from './pericope.js';
+import { Pericope } from './pericope.js';
+import { Range } from './range.js';
 import { VersificationSystem } from './versification.js';
 export declare class TextProcessor {
     /**
@@ -20,20 +21,15 @@ export declare class TextProcessor {
         ranges: Range[];
     };
     /**
-     * Converts an array of Range objects into a formatted string (e.g., "1:1-3,5").
-     */
-    private static formatRanges;
-    /**
      * Parses the verse range part of a reference string.
      * Handles multiple comma-separated ranges.
      */
     private static parseRanges;
-    /**
-     * Parses a single range segment (e.g., "1:1-5" or "5-7").
-     * Returns the chapter number to provide context for subsequent ranges.
-     */
     private static parseSingleRange;
-    private static parseVerseRef;
+    private static parseSingleReference;
+    private static versesToRange;
+    private static chaptersToRange;
+    private static wholeBookRange;
     private static validateRange;
     /**
      * Suggests completions for a partial biblical reference.

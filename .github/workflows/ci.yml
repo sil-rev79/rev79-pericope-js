@@ -24,10 +24,17 @@ jobs:
       - run: npx vitest run
 
       # dist/ must match src/. A drifting build is exactly what #5 was.
-      - run: npm run build
+      #
+      # Built from scratch and staged before comparing: `git diff` ignores
+      # untracked files and tsc does not clean outDir, so a NEW module would
+      # land in dist/ untracked and a comparison of tracked files alone would
+      # walk straight past it. dist/range.js in #6 was exactly such a file.
       - name: Check dist/ is up to date
         run: |
-          if ! git diff --exit-code --stat dist/; then
+          rm -rf dist
+          npm run build
+          git add -A dist/
+          if ! git diff --cached --exit-code --stat dist/; then
             echo "::error::dist/ is stale — run 'npm run build' and commit the result"
             exit 1
           fi

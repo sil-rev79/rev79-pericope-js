@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+
+      # tsc, not just vitest: vitest transpiles per file, so it cannot catch a
+      # broken build. dist/ is committed and consumers install it directly, so
+      # an uncompilable main silently strands every later commit (#5).
+      - run: npx tsc --noEmit
+
+      - run: npx vitest run
+
+      # dist/ must match src/. A drifting build is exactly what #5 was.
+      - run: npm run build
+      - name: Check dist/ is up to date
+        run: |
+          if ! git diff --exit-code --stat dist/; then
+            echo "::error::dist/ is stale — run 'npm run build' and commit the result"
+            exit 1
+          fi

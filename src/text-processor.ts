@@ -34,15 +34,17 @@ export class TextProcessor {
 
     /**
      * Formats a Pericope object as a string in the specified format.
+     *
+     * Delegates to Pericope#toString, which owns the excludeVerses /
+     * excludeChapters rules. This method kept its own copy of the formatting
+     * until the Range refactor removed the helper it called, which left it
+     * uncompilable and stopped the package building at all.
      */
     static formatPericope(
         pericope: Pericope,
         format: 'canonical' | 'full_name' | 'abbreviated' = 'canonical',
     ): string {
-        if (pericope.ranges.length === 0) return '';
-        const bookPrefix =
-            format === 'full_name' ? pericope.book.name : pericope.book.code;
-        return `${bookPrefix} ${this.formatRanges(pericope.ranges)}`;
+        return pericope.toString(format);
     }
 
     /**

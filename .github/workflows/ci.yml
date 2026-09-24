@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # --ignore-scripts so the prepare script does not build here; the build
+      # is its own step below, and a failure should read as a build failure.
+      - run: npm ci --ignore-scripts
+
+      # tsc, not just vitest. vitest transpiles per file, so a call to a method
+      # that no longer exists passes as long as nothing reaches it — which is
+      # exactly how formatPericope broke the build unnoticed (#1).
+      - run: npm run build
+
+      - run: npx vitest run

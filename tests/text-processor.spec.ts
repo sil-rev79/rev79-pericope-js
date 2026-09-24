@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { TextProcessor } from '../src/text-processor.js';
+import { Pericope } from '../src/pericope.js';
 
 describe('TextProcessor', () => {
     describe('suggestCompletions', () => {
@@ -68,6 +69,32 @@ describe('TextProcessor', () => {
             const suggestions = TextProcessor.suggestCompletions('John 3:16');
             expect(suggestions).toContain('John 3:16-');
             expect(suggestions).toContain('John 3:16,');
+        });
+    });
+    describe('formatPericope', () => {
+        it('agrees with Pericope#toString for every format', () => {
+            const pericope = new Pericope('MAT 1:1–28:20');
+            for (const format of [
+                'canonical',
+                'full_name',
+                'abbreviated',
+            ] as const) {
+                expect(TextProcessor.formatPericope(pericope, format)).toBe(
+                    pericope.toString(format),
+                );
+            }
+        });
+
+        it('defaults to canonical', () => {
+            const pericope = new Pericope('GEN 21:1–34');
+            expect(TextProcessor.formatPericope(pericope)).toBe('GEN 21:1–34');
+        });
+
+        it('returns an empty string for an empty pericope', () => {
+            const empty = new Pericope('GEN 1:1').subtract(
+                new Pericope('GEN 1:1'),
+            );
+            expect(TextProcessor.formatPericope(empty)).toBe('');
         });
     });
 });

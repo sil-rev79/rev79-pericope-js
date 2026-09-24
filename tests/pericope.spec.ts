@@ -331,4 +331,56 @@ describe('Pericope', () => {
             expect(p.contract(2, 3).toString()).toBe('GEN 1:3–7');
         });
     });
+    // These strings are the Ruby gem's output, produced by running it. The two
+    // implementations feed the same product and must not drift. They also guard
+    // the build: dist/ is committed and consumers install it directly, so a
+    // silently stale build is invisible without an assertion like these (#5).
+    describe('parity with the Ruby gem', () => {
+        const union = (refs: string[]) =>
+            refs.map((r) => new Pericope(r)).reduce((a, b) => a.union(b));
+
+        it.each([
+            ['MAT 1:1–28:20', 'Matthew 1–28', 'MAT'],
+            ['GEN 1:1–50:26', 'Genesis 1–50', 'GEN'],
+            // Jude is a single-chapter book: full_name collapses the whole
+            // chapter to '1', abbreviated drops the chapter entirely.
+            ['JUD 1:1–25', 'Jude 1', 'JUD'],
+        ])('formats %s', (input, fullName, abbreviated) => {
+            expect(new Pericope(input).toString('full_name')).toBe(fullName);
+            expect(new Pericope(input).toString('abbreviated')).toBe(
+                abbreviated,
+            );
+        });
+
+        it('collapses a union of adjacent whole chapters', () => {
+            expect(
+                union(['GEN 21:1–34', 'GEN 22:1–24']).toString('full_name'),
+            ).toBe('Genesis 21–22');
+        });
+
+        it('keeps verses when a union is not whole chapters', () => {
+            expect(
+                union(['JHN 2:6–4:27', 'JHN 5:1–47']).toString('full_name'),
+            ).toBe('John 2:6–4:27,5:1–47');
+        });
+
+        it('preserves a gap between whole chapters', () => {
+            expect(
+                union(['MAT 1:1–25', 'MAT 2:1–23', 'MAT 5:1–48']).toString(
+                    'full_name',
+                ),
+            ).toBe('Matthew 1–2,5');
+        });
+
+        it('parses en-dash and hyphen identically', () => {
+            expect(new Pericope('GEN 21:1–34').toString('canonical')).toBe(
+                new Pericope('GEN 21:1-34').toString('canonical'),
+            );
+        });
+
+        it('round-trips its own canonical output', () => {
+            const once = new Pericope('GEN 21:1-34').toString('canonical');
+            expect(new Pericope(once).toString('canonical')).toBe(once);
+        });
+    });
 });
